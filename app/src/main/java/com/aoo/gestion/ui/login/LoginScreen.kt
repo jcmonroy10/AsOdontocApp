@@ -23,10 +23,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aoo.gestion.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class LoginStatus { IDLE, LOADING, SUCCESS }
 
@@ -47,9 +48,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var status by remember { mutableStateOf(LoginStatus.IDLE) }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(status) {
-        if (status == LoginStatus.LOADING) {
+    fun submitLogin() {
+        status = LoginStatus.LOADING
+        scope.launch {
             delay(1100)
             status = LoginStatus.SUCCESS
             delay(600)
@@ -140,7 +143,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
             val submitEnabled = status == LoginStatus.IDLE && username.isNotBlank() && password.isNotBlank()
             Button(
-                onClick = { if (submitEnabled) status = LoginStatus.LOADING },
+                onClick = { if (submitEnabled) submitLogin() },
                 enabled = status != LoginStatus.LOADING,
                 shape = RoundedCornerShape(13.dp),
                 colors = ButtonDefaults.buttonColors(
