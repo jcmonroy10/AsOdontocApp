@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -26,16 +25,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DashboardScreen() {
-    var selectedTab by remember { mutableStateOf(AooTab.INICIO) }
+fun DashboardScreen(
+    onOpenEventDetail: (Int) -> Unit,
+    onOpenDiplomaPreview: (Int) -> Unit,
+    onOpenInvoice: (String) -> Unit,
+    onOpenMember: (Int) -> Unit,
+    onOpenEditProfile: () -> Unit,
+    onOpenChangePassword: () -> Unit,
+    onOpenNotifSettings: () -> Unit,
+    onOpenHelpSupport: () -> Unit,
+    onPay: (concepto: String, monto: String) -> Unit,
+    onLogout: () -> Unit
+) {
+    var selectedTab by rememberSaveable { mutableStateOf(AooTab.INICIO) }
 
     Scaffold(
         topBar = { DashboardHeader(selectedTab = selectedTab, onBack = { selectedTab = AooTab.INICIO }) },
@@ -50,13 +61,26 @@ fun DashboardScreen() {
             when (selectedTab) {
                 AooTab.INICIO -> InicioTab(
                     onNavigate = { selectedTab = it },
-                    onOpenPagos = { selectedTab = AooTab.PAGOS }
+                    onPayCuota = { onPay("Cuota de octubre", "15.00") },
+                    onOpenEventDetail = onOpenEventDetail
                 )
-                AooTab.EVENTOS -> PlaceholderTab("El catálogo de eventos se arma en el siguiente paso.")
-                AooTab.DIPLOMAS -> PlaceholderTab("Tus diplomas se arman en el siguiente paso.")
-                AooTab.PAGOS -> PlaceholderTab("El detalle de pagos y facturas se arma en el siguiente paso.")
-                AooTab.DIRECTORIO -> PlaceholderTab("El directorio de socios se arma en el siguiente paso.")
-                AooTab.PERFIL -> PlaceholderTab("Tu perfil se arma en el siguiente paso.")
+                AooTab.EVENTOS -> EventosTab(
+                    onOpenEventDetail = onOpenEventDetail,
+                    onOpenDiploma = onOpenDiplomaPreview
+                )
+                AooTab.DIPLOMAS -> DiplomasTab(onOpenDiploma = onOpenDiplomaPreview)
+                AooTab.PAGOS -> PagosTab(
+                    onOpenInvoice = onOpenInvoice,
+                    onPaySelected = onPay
+                )
+                AooTab.DIRECTORIO -> DirectorioTab(onOpenMember = onOpenMember)
+                AooTab.PERFIL -> PerfilTab(
+                    onOpenEditProfile = onOpenEditProfile,
+                    onOpenChangePassword = onOpenChangePassword,
+                    onOpenNotifSettings = onOpenNotifSettings,
+                    onOpenHelpSupport = onOpenHelpSupport,
+                    onLogout = onLogout
+                )
             }
         }
     }
@@ -121,18 +145,6 @@ private fun DashboardBottomBar(selectedTab: AooTab, onTabSelected: (AooTab) -> U
             onClick = { onTabSelected(AooTab.PERFIL) },
             icon = { Icon(Icons.Filled.Person, contentDescription = null) },
             label = { Text("Perfil") }
-        )
-    }
-}
-
-@Composable
-private fun PlaceholderTab(message: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 40.dp)
         )
     }
 }

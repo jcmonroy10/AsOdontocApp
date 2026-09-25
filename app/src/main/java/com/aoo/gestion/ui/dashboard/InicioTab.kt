@@ -146,7 +146,11 @@ fun InicioHeader() {
 }
 
 @Composable
-fun InicioTab(onNavigate: (AooTab) -> Unit, onOpenPagos: () -> Unit) {
+fun InicioTab(
+    onNavigate: (AooTab) -> Unit,
+    onPayCuota: () -> Unit,
+    onOpenEventDetail: (Int) -> Unit
+) {
     val uriHandler = LocalUriHandler.current
     var event1Confirmed by remember { mutableStateOf(false) }
     var event2Confirmed by remember { mutableStateOf(false) }
@@ -195,7 +199,7 @@ fun InicioTab(onNavigate: (AooTab) -> Unit, onOpenPagos: () -> Unit) {
                 }
 
                 Button(
-                    onClick = onOpenPagos,
+                    onClick = onPayCuota,
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth().height(46.dp)
                 ) {
@@ -238,7 +242,8 @@ fun InicioTab(onNavigate: (AooTab) -> Unit, onOpenPagos: () -> Unit) {
                         confirmed = confirmed,
                         onToggleConfirm = {
                             if (event.id == 1) event1Confirmed = !event1Confirmed else event2Confirmed = !event2Confirmed
-                        }
+                        },
+                        onOpenDetail = { onOpenEventDetail(event.id) }
                     )
                 }
             }
@@ -292,7 +297,7 @@ private fun QuickAccessTile(label: String, icon: androidx.compose.ui.graphics.ve
 }
 
 @Composable
-private fun EventPreviewCard(event: UpcomingEvent, confirmed: Boolean, onToggleConfirm: () -> Unit) {
+private fun EventPreviewCard(event: UpcomingEvent, confirmed: Boolean, onToggleConfirm: () -> Unit, onOpenDetail: () -> Unit) {
     Card(
         shape = RoundedCornerShape(14.dp),
         border = androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -313,7 +318,7 @@ private fun EventPreviewCard(event: UpcomingEvent, confirmed: Boolean, onToggleC
             Text(event.place, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 OutlinedButton(
-                    onClick = { /* TODO: detalle de evento */ },
+                    onClick = onOpenDetail,
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.weight(1f).height(34.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
